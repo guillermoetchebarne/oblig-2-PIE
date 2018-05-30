@@ -56,14 +56,9 @@ int paridad (unsigned int in) {
     int bitin (int buffer, int nb) {
         return ((1<<nb) & buffer)>>nb;
     }
-    for (i = 0 ; i <= 31 ; i++) {
-        if (bitin (in, i) == 1) {
-            c = c+1;
-        }
+    for (i = 1; i <= sizeof (in) * 8 ; i++) {
+    	c = (bitin (in, i) == 1) ? c + 1 : c;
     }
-    if (c % 2 == 0) {
-        return 1;
-    } else {
-        return 0;
-    }
+    c = (c % 2 == 0) ? 1 : 0;
+    return c;
 }
