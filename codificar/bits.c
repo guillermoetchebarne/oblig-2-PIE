@@ -57,8 +57,7 @@ int paridad (unsigned int in) {
         return ((1<<nb) & buffer)>>nb;
     }
     for (i = 1; i <= sizeof (in) * 8 ; i++) {
-    	c = (bitin (in, i) == 1) ? c + 1 : c;
+    	c = c ^ bitin (in, i);
     }
-    c = (c % 2 == 0) ? 1 : 0;
-    return c;
+    return !c;
 }
