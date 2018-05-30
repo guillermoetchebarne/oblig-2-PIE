@@ -1,0 +1,1 @@
+struct EstadisticasDecodificar decodificar_archivo (FILE * entrada, FILE * salida);

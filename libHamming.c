@@ -1,6 +1,19 @@
-#include <stdio.h>
-#include "bits.h"
-#include "bits.c"
+unsigned short codificar (unsigned char simbolo) {
+	unsigned char codificar_nibble (unsigned char nib) {
+		int r0 = !paridad (set_bit (nib, 3, 0));
+		int r1 = !paridad (set_bit (nib, 2, 0));
+		int r2 = !paridad (set_bit (nib, 1, 0));
+		nib = set_bit (nib, 4, bit (nib, 3));
+		nib = set_bit (nib, 3, r0);
+		nib = set_bit (nib, 5, r1);
+		nib = set_bit (nib, 6, r2);
+		nib <<= 1;
+		nib = set_bit (nib, 0, !paridad (nib));
+		return nib;
+	}
+	unsigned short sim = codificar_nibble (simbolo & crear_mascara (3, 0)) | codificar_nibble (simbolo  >> 4) << 8;
+	return sim;
+}
 
 typedef enum code1 {OK_DECO, BIT_CORREGIDO, DOS_ERRORES_DETECTADOS} CodigoErrorDeco;
 
@@ -43,33 +56,4 @@ struct ResultadoDecodificar decodificar (unsigned short codigo) {
 		}
 	}	
 	return sim;
-}
-
-struct EstadisticasDecodificar decodificar_archivo (FILE * entrada, FILE * salida) {
-	int c;
-	unsigned short buffer;
-	struct ResultadoDecodificar temp;
-	struct EstadisticasDecodificar aux = {0,0,0,1};
-	if (entrada == NULL) {
-        aux.error = 0;
-    } else {
-		while ((c = getc (entrada)) != EOF && aux.error == 1) {
-			buffer = c << 8;
-			c = getc (entrada);
-			aux.error = (c == EOF && ferror (entrada)) ? 0 : 1;
-			temp = decodificar (buffer | c);
-			c = putc (temp.decodificado, salida);
-			aux.error = (c == EOF) ? 0 : 1;
-			if (temp.error == OK_DECO) {
-	  			aux.correctos++;
-	  		} else if (temp.error == BIT_CORREGIDO ) {
-	  			aux.corregidos++;
-	  		} else {
-	  			aux.incorrectos++;
-	  		}
-	  	}
-	} 	
-  	fclose (entrada);
-	fclose (salida);
-	return aux;
 }
